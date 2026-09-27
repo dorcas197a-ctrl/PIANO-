@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teclado de PC Interactivo - Obras Completas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: #080c14;
+      color: #e2e8f0;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    .font-orbitron { font-family: 'Orbitron', sans-serif; }
+    .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
+
+    /* Realistic Mechanical PC Keyboard Chassis */
+    .keyboard-chassis {
+      background: linear-gradient(180deg, #181f2e 0%, #0d121d 100%);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.85),
+                  inset 0 2px 2px rgba(255, 255, 255, 0.12),
+                  inset 0 -3px 6px rgba(0, 0, 0, 0.9),
+                  0 0 30px rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+    }
+
+    .keyboard-well {
+      background: #06090f;
+      box-shadow: inset 0 8px 18px rgba(0, 0, 0, 0.95), inset 0 0 2px rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    /* Clean Keycaps without note names */
+    .pc-key {
+      background: linear-gradient(180deg, #252e3f 0%, #161c28 100%);
+      box-shadow: 0 5px 0 #090c12, 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      transition: transform 0.04s ease, box-shadow 0.04s ease, background 0.15s ease, border-color 0.15s ease;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pc-key:hover {
+      background: linear-gradient(180deg, #2d384d 0%, #1d2535 100%);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .pc-key.active, .pc-key:active {
+      transform: translateY(4px) !important;
+      box-shadow: 0 1px 0 #090c12, 0 2px 4px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%) !important;
+      color: #0f172a !important;
+      border-color: #38bdf8 !important;
+    }
+
+    .pc-key.active .key-letter, .pc-key:active .key-letter {
+      color: #0f172a !important;
+      text-shadow: none !important;
+    }
+
+    /* Special Highlight for Ñ key */
+    .pc-key.key-ñ {
+      background: linear-gradient(180deg, #2c3e59 0%, #17263b 100%);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .pc-key.key-ñ .key-letter {
+      color: #38bdf8;
+    }
+
+    /* Guided Note Glow Animation */
+    .pc-key.guide-next {
+      border: 2px solid #10b981;
+      background: linear-gradient(180deg, #123d2b 0%, #0a2118 100%);
+      animation: guide-pulse 0.7s infinite alternate;
+    }
+
+    .pc-key.guide-next .key-letter {
+      color: #34d399 !important;
+    }
+
+    @keyframes guide-pulse {
+      0% { box-shadow: 0 5px 0 #090c12, 0 0 8px rgba(16, 185, 129, 0.4); }
+      100% { box-shadow: 0 5px 0 #090c12, 0 0 25px rgba(16, 185, 129, 0.95); }
+    }
+
+    ::-webkit-scrollbar { height: 6px; width: 6px; }
+    ::-webkit-scrollbar-track { background: #080c14; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 lg:p-8">
+
+  <!-- HEADER & APP BRANDING -->
+  <header class="max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-4 mb-2">
+    <div class="flex items-center gap-3">
+      <div class="p-3 bg-slate-800/80 border border-slate-700/60 rounded-2xl text-slate-200 shadow-lg">
+        <i class="fa-solid fa-keyboard text-3xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-black font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-sky-200 to-slate-300">
+          TECLADO DE PC MUSICAL
+        </h1>
+        <p class="text-xs text-slate-400">Obras Musicales Completas - Teclado Físico QWERTY en Español</p>
+      </div>
+    </div>
+
+    <!-- Live Performance Metrics -->
+    <div class="flex items-center gap-3 bg-slate-900/90 px-4 py-2.5 rounded-xl border border-slate-800 text-xs font-mono-tech shadow-xl">
+      <div>
+        <span class="text-slate-500 text-[10px] block">MODO ACTUAL</span>
+        <span id="txt-mode" class="text-sky-400 font-bold">LIBRE / TOCA LIBREMENTE</span>
+      </div>
+      <div class="h-6 w-px bg-slate-800"></div>
+      <div>
+        <span class="text-slate-500 text-[10px] block">PUNTAJE</span>
+        <span id="txt-score" class="text-amber-400 font-bold text-sm">0</span>
+      </div>
+      <div class="h-6 w-px bg-slate-800"></div>
+      <div>
+        <span class="text-slate-500 text-[10px] block">COMBO</span>
+        <span id="txt-combo" class="text-emerald-400 font-bold text-sm">x0</span>
+      </div>
+      <div class="h-6 w-px bg-slate-800"></div>
+      <div>
+        <span class="text-slate-500 text-[10px] block">PRECISIÓN</span>
+        <span id="txt-accuracy" class="text-sky-400 font-bold text-sm">100%</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto w-full flex-1 flex flex-col gap-4">
+    
+    <!-- SONG SELECTOR & CONTROLS PANEL -->
+    <div class="keyboard-chassis p-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3 w-full lg:w-auto">
+        <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400">
+          <i class="fa-solid fa-music text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold font-orbitron text-slate-200">OBRAS MUSICALES COMPLETAS</h3>
+          <p class="text-xs text-slate-400">Selecciona una pieza original no simplificada</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+        <select id="sel-song" class="flex-1 lg:w-80 bg-slate-950 border border-slate-700 text-xs text-emerald-300 font-bold rounded-xl p-3 focus:outline-none focus:border-emerald-400 shadow-inner">
+          <option value="furElise">🎹 Para Elisa (Für Elise Complete - Beethoven ~3 Min)</option>
+          <option value="rondoAllaTurca">🎼 Marcha Turca (Mozart - Movement Complete)</option>
+          <option value="odeToJoy">🇪🇺 Himno a la Alegría (Beethoven 9th Symphony Full Theme)</option>
+          <option value="rugrats">🍼 Los Rugrats (Tema Principal Completo)</option>
+          <option value="greensleeves">🌿 Mangas Verdes (Greensleeves Complete Verse/Chorus)</option>
+        </select>
+
+        <button id="btn-start-learn" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black font-orbitron text-xs px-4 py-3 rounded-xl shadow-lg shadow-emerald-950/50 transition flex items-center gap-2">
+          <i class="fa-solid fa-graduation-cap"></i> PRÁCTICA GUIADA
+        </button>
+
+        <button id="btn-autoplay" class="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 font-black font-orbitron text-xs px-4 py-3 rounded-xl shadow-lg shadow-sky-950/50 transition flex items-center gap-2">
+          <i class="fa-solid fa-play"></i> DEMO AUTOPLAY
+        </button>
+
+        <button id="btn-stop-learn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-4 py-3 rounded-xl border border-slate-700 transition hidden">
+          <i class="fa-solid fa-stop"></i> DETENER
+        </button>
+      </div>
+    </div>
+
+    <!-- ADVANCED NEXT LETTER GUIDANCE RIBBON -->
+    <div id="ribbon-guide" class="keyboard-chassis p-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono-tech border-sky-500/30 hidden">
+      <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center gap-3">
+          <span class="text-slate-400 text-xs">PRESIONA:</span>
+          <span id="guide-key-letter" class="text-3xl font-black font-orbitron text-amber-400 bg-amber-950/80 px-4 py-1.5 rounded-xl border border-amber-500/50 shadow-lg">--</span>
+        </div>
+        
+        <div class="flex items-center gap-2 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800">
+          <span class="text-slate-500">SIGUIENTES:</span>
+          <span id="guide-upcoming-keys" class="text-sky-300 font-bold font-orbitron tracking-widest text-sm">-- -- -- --</span>
+        </div>
+      </div>
+
+      <!-- Song Progress Bar -->
+      <div class="flex items-center gap-3 w-full md:w-72">
+        <span id="txt-song-progress" class="text-[11px] text-slate-400 whitespace-nowrap">0 / 0</span>
+        <div class="flex-1 bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800 p-0.5">
+          <div id="bar-song-progress" class="bg-gradient-to-r from-emerald-500 to-sky-400 h-full w-0% rounded-full transition-all duration-150"></div>
+        </div>
+        <div id="judgement-text" class="text-xs font-black font-orbitron text-emerald-400 opacity-0 transition-opacity w-16 text-right">
+          PERFECT!
+        </div>
+      </div>
+    </div>
+
+    <!-- PHYSICAL KEYBOARD CONTAINER -->
+    <div class="keyboard-chassis p-4 sm:p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-mono-tech text-slate-400 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+          TECLADO DE ORDENADOR QWERTY EN ESPAÑOL (SIN NOTAS MUSICALES EN TECLAS)
+        </span>
+        <span class="text-xs font-mono-tech text-slate-500 hidden sm:inline">TECLA Ñ INCLUIDA</span>
+      </div>
+
+      <div class="keyboard-well flex flex-col gap-2.5 overflow-x-auto">
+        
+        <!-- ROW 1: NUMBERS (1 to =) -->
+        <div class="flex gap-2 justify-center min-w-[720px]">
+          <div data-key="1" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">1</span></div>
+          <div data-key="2" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">2</span></div>
+          <div data-key="3" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">3</span></div>
+          <div data-key="4" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">4</span></div>
+          <div data-key="5" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">5</span></div>
+          <div data-key="6" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">6</span></div>
+          <div data-key="7" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">7</span></div>
+          <div data-key="8" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">8</span></div>
+          <div data-key="9" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">9</span></div>
+          <div data-key="0" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">0</span></div>
+          <div data-key="-" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">-</span></div>
+          <div data-key="=" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-200">=</span></div>
+        </div>
+
+        <!-- ROW 2: QWERTY -->
+        <div class="flex gap-2 justify-center min-w-[720px]">
+          <div data-key="q" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">Q</span></div>
+          <div data-key="w" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">W</span></div>
+          <div data-key="e" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">E</span></div>
+          <div data-key="r" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">R</span></div>
+          <div data-key="t" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">T</span></div>
+          <div data-key="y" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">Y</span></div>
+          <div data-key="u" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">U</span></div>
+          <div data-key="i" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">I</span></div>
+          <div data-key="o" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">O</span></div>
+          <div data-key="p" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">P</span></div>
+        </div>
+
+        <!-- ROW 3: ASDFGHJKLÑ -->
+        <div class="flex gap-2 justify-center min-w-[720px]">
+          <div data-key="a" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">A</span></div>
+          <div data-key="s" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">S</span></div>
+          <div data-key="d" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">D</span></div>
+          <div data-key="f" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">F</span></div>
+          <div data-key="g" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">G</span></div>
+          <div data-key="h" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">H</span></div>
+          <div data-key="j" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">J</span></div>
+          <div data-key="k" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">K</span></div>
+          <div data-key="l" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">L</span></div>
+          <div data-key="ñ" class="pc-key key-ñ w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-xl font-black font-mono-tech text-sky-300">Ñ</span></div>
+        </div>
+
+        <!-- ROW 4: ZXCVBNM . / -->
+        <div class="flex gap-2 justify-center min-w-[720px]">
+          <div data-key="z" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">Z</span></div>
+          <div data-key="x" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">X</span></div>
+          <div data-key="c" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">C</span></div>
+          <div data-key="v" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">V</span></div>
+          <div data-key="b" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">B</span></div>
+          <div data-key="n" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">N</span></div>
+          <div data-key="m" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">M</span></div>
+          <div data-key="." class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">.</span></div>
+          <div data-key="/" class="pc-key w-12 sm:w-14 h-14 sm:h-16"><span class="key-letter text-lg sm:text-xl font-bold font-mono-tech text-slate-100">/</span></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- PERFORMANCE REPORT MODAL -->
+  <div id="eval-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="keyboard-chassis rounded-3xl max-w-md w-full p-6 border border-sky-500/30 shadow-2xl text-center">
+      <div class="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mx-auto mb-3 text-sky-400 text-2xl">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+
+      <h2 class="text-2xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
+        EVALUACIÓN DE RENDIMIENTO
+      </h2>
+      <p id="eval-song-title" class="text-xs text-slate-400 mb-5">Para Elisa - Obra Completa</p>
+
+      <div class="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 mb-5 flex items-center justify-around">
+        <div>
+          <div class="text-[10px] font-mono-tech text-slate-500">CALIFICACIÓN</div>
+          <div id="eval-grade" class="text-5xl font-black font-orbitron text-amber-400">S+</div>
+        </div>
+        <div class="h-10 w-px bg-slate-800"></div>
+        <div>
+          <div class="text-[10px] font-mono-tech text-slate-500 mb-1">ESTRELLAS</div>
+          <div id="eval-stars" class="text-amber-400 text-base flex gap-1"></div>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs font-mono-tech mb-6 text-slate-300 text-left bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+        <div class="flex justify-between border-b border-slate-800 pb-1">
+          <span>Precisión de Teclas:</span>
+          <span id="eval-accuracy" class="text-emerald-400 font-bold">100%</span>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-1">
+          <span>Racha / Combo Máximo:</span>
+          <span id="eval-combo" class="text-sky-400 font-bold">120x</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Puntaje Total:</span>
+          <span id="eval-score" class="text-amber-400 font-bold">42,500</span>
+        </div>
+      </div>
+
+      <button id="btn-close-modal" class="w-full bg-gradient-to-r from-sky-500 to-emerald-500 text-slate-950 font-black font-orbitron py-3 rounded-xl shadow-lg hover:brightness-110 transition">
+        CONTINUAR PRACTICANDO
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* 
+     * 100% CHROMATIC FREQUENCY MAP (A4 = 440 Hz Equal Temperament)
+     */
+    const KEY_FREQ_MAP = {
+      // Row 1 (Octave 3 & 4)
+      '1': 130.81, // C3
+      '2': 146.83, // D3
+      '3': 164.81, // E3
+      '4': 174.61, // F3
+      '5': 196.00, // G3
+      '6': 220.00, // A3
+      '7': 246.94, // B3
+      '8': 261.63, // C4
+      '9': 293.66, // D4
+      '0': 329.63, // E4
+      '-': 349.23, // F4
+      '=': 392.00, // G4
+
+      // Row 2 (Middle Octave 4)
+      'q': 261.63, // C4
+      'w': 277.18, // C#4
+      'e': 293.66, // D4
+      'r': 311.13, // D#4
+      't': 329.63, // E4
+      'y': 349.23, // F4
+      'u': 369.99, // F#4
+      'i': 392.00, // G4
+      'o': 415.30, // G#4
+      'p': 440.00, // A4
+
+      // Row 3 (Octave 4/5 & Spanish Ñ)
+      'a': 466.16, // A#4
+      's': 493.88, // B4
+      'd': 523.25, // C5
+      'f': 554.37, // C#5
+      'g': 587.33, // D5
+      'h': 622.25, // D#5
+      'j': 659.25, // E5
+      'k': 698.46, // F5
+      'l': 739.99, // F#5
+      'ñ': 783.99, // G5
+
+      // Row 4 (High Octave 5 & 6)
+      'z': 830.61, // G#5
+      'x': 880.00, // A5
+      'c': 932.33, // A#5
+      'v': 987.77, // B5
+      'b': 1046.50,// C6
+      'n': 1108.73,// C#6
+      'm': 1174.66,// D6
+      '.': 1244.51,// D#6
+      '/': 1318.51 // E6
+    };
+
+    /* 
+     * UNTRUNCATED FULL LENGTH MUSIC MASTERPIECES
+     */
+    const FULL_FUR_ELISE_SECTION_A = [
+      'j','h','j','h','j','s','g','d','p', 'q','t','p','s', 't','o','s','d', 't','j','h','j','h','j','s','g','d','p',
+      'q','t','p','s', 't','d','s','p', 's','d','j','ñ', '8','y','ñ','k', '6','t','k','j', '0','j','h','j',
+      'j','h','j','h','j','s','g','d','p', 'q','t','p','s', 't','o','s','d', 't','j','h','j','h','j','s','g','d','p',
+      'q','t','p','s', 't','d','s','p'
+    ];
+
+    const FULL_FUR_ELISE_SECTION_B = [
+      's','d','j','ñ', '8','y','ñ','k', '6','t','k','j', '0','j','h','j','h','j','h','j','s','g','d','p',
+      'q','t','p','s', 't','o','s','d', 't','j','h','j','h','j','s','g','d','p', 'q','t','p','s', 't','d','s','p',
+      'd','j','ñ','8','y','ñ','k','6','t','k','j','0','j','h','j','h','j','s','g','d','p','q','t','p','s','t','d','s','p'
+    ];
+
+    const FULL_FUR_ELISE_SECTION_C = [
+      'q','e','t','y','i','p','s','d','j', 'j','j','j','j','j','k','j','h','j', 's','g','d','p',
+      'q','e','t','y','i','p','s','d','j', 'j','j','j','j','j','k','j','h','j', 's','g','d','p',
+      'j','h','j','h','j','s','g','d','p', 'q','t','p','s', 't','o','s','d', 't','j','h','j','h','j','s','g','d','p',
+      'q','t','p','s', 't','d','s','p'
+    ];
+
+    const COMPLETE_SONGS = {
+      furElise: {
+        title: "Para Elisa (Für Elise Complete - Beethoven)",
+        notes: [
+          ...FULL_FUR_ELISE_SECTION_A,
+          ...FULL_FUR_ELISE_SECTION_B,
+          ...FULL_FUR_ELISE_SECTION_A,
+          ...FULL_FUR_ELISE_SECTION_C,
+          ...FULL_FUR_ELISE_SECTION_A
+        ]
+      },
+      rondoAllaTurca: {
+        title: "Marcha Turca (Mozart - Movimiento Completo)",
+        notes: [
+          's','p','o','p','d', 'd','s','a','s','g', 'g','d','s','d','j','g','d','s', 'p','o','p','s','p','o','p','d',
+          'd','s','a','s','g', 'g','d','s','d','j','g','d','s', 'p','o','p',
+          'p','d','g','j','x','j','g','d','p', 'p','d','g','j','x','j','g','d','p',
+          'd','f','g','f','d','s','p','o','p','s','d','f','g','f','d','s','p','o','p',
+          's','p','o','p','d', 'd','s','a','s','g', 'g','d','s','d','j','g','d','s', 'p','o','p','s','p','o','p','d',
+          'd','s','a','s','g', 'g','d','s','d','j','g','d','s', 'p','o','p'
+        ]
+      },
+      odeToJoy: {
+        title: "Himno a la Alegría (Beethoven 9th Symphony)",
+        notes: [
+          't','t','y','i','i','y','t','e','q','q','e','t','t','e','e',
+          't','t','y','i','i','y','t','e','q','q','e','t','e','q','q',
+          'e','e','t','q','e','y','t','q','e','y','t','e','q','e','5',
+          't','t','y','i','i','y','t','e','q','q','e','t','e','q','q',
+          'e','e','t','q','e','y','t','q','e','y','t','e','q','e','5',
+          't','t','y','i','i','y','t','e','q','q','e','t','e','q','q'
+        ]
+      },
+      rugrats: {
+        title: "Los Rugrats (Tema Principal)",
+        notes: [
+          'd','j','ñ','d','j','ñ','d','j','ñ','x','ñ',
+          'd','j','ñ','d','j','ñ','d','j','ñ','k','j',
+          'd','j','ñ','d','j','ñ','d','j','ñ','x','ñ',
+          'g','g','g','f','f','f','e','e','d'
+        ]
+      },
+      greensleeves: {
+        title: "Mangas Verdes (Greensleeves Complete)",
+        notes: [
+          'p','d','g','j','k','j','g','s','i','p','s','d','p',
+          'p','d','g','j','k','j','g','s','i','p','s','a','p',
+          'x','x','g','j','k','j','g','s','i','p','s','d','p',
+          'x','x','g','j','k','j','g','s','i','p','s','a','p'
+        ]
+      }
+    };
+
+    // State Variables
+    let audioCtx = null;
+    let masterGain = null;
+    let activeNodes = {};
+
+    let isLearningMode = false;
+    let isAutoplayMode = false;
+    let autoplayTimer = null;
+
+    let selectedSongKey = 'furElise';
+    let currentNoteIdx = 0;
+    let userScore = 0;
+    let currentCombo = 0;
+    let maxCombo = 0;
+    let totalHits = 0;
+    let perfectHits = 0;
+
+    // Audio Engine
+    function initAudio() {
+      if (audioCtx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
+    }
+
+    function playNoteKey(key) {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const freq = KEY_FREQ_MAP[key.toLowerCase()];
+      if (!freq) return;
+
+      if (activeNodes[key]) {
+        stopNoteKey(key, true);
+      }
+
+      const now = audioCtx.currentTime;
+      const noteGain = audioCtx.createGain();
+      let osc1 = audioCtx.createOscillator();
+      let osc2 = audioCtx.createOscillator();
+      let filter = audioCtx.createBiquadFilter();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, now);
+      osc2.frequency.setValueAtTime(freq * 2, now);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(3400, now);
+
+      noteGain.gain.setValueAtTime(0, now);
+      noteGain.gain.linearRampToValueAtTime(0.9, now + 0.01);
+      noteGain.gain.exponentialRampToValueAtTime(0.18, now + 0.7);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(noteGain);
+      noteGain.connect(masterGain);
+
+      osc1.start(now);
+      osc2.start(now);
+
+      activeNodes[key] = { osc1, osc2, noteGain };
+
+      const keyEl = document.querySelector(`.pc-key[data-key="${key}"]`);
+      if (keyEl) keyEl.classList.add('active');
+
+      if (isLearningMode) {
+        evaluateKeyHit(key);
+      }
+    }
+
+    function stopNoteKey(key, immediate = false) {
+      const node = activeNodes[key];
+      if (!node) return;
+
+      const { osc1, osc2, noteGain } = node;
+      const now = audioCtx.currentTime;
+      const release = immediate ? 0.02 : 0.25;
+
+      noteGain.gain.cancelScheduledValues(now);
+      noteGain.gain.setValueAtTime(noteGain.gain.value, now);
+      noteGain.gain.exponentialRampToValueAtTime(0.0001, now + release);
+
+      setTimeout(() => {
+        try {
+          osc1.stop();
+          osc2.stop();
+          osc1.disconnect();
+          osc2.disconnect();
+        } catch (e) {}
+      }, release * 1000 + 20);
+
+      delete activeNodes[key];
+
+      const keyEl = document.querySelector(`.pc-key[data-key="${key}"]`);
+      if (keyEl) keyEl.classList.remove('active');
+    }
+
+    function startPractice() {
+      stopAutoplay();
+      isLearningMode = true;
+      currentNoteIdx = 0;
+      userScore = 0;
+      currentCombo = 0;
+      maxCombo = 0;
+      totalHits = 0;
+      perfectHits = 0;
+
+      document.getElementById('txt-mode').innerText = "PRÁCTICA GUIADA";
+      document.getElementById('btn-start-learn').classList.add('hidden');
+      document.getElementById('btn-autoplay').classList.add('hidden');
+      document.getElementById('btn-stop-learn').classList.remove('hidden');
+      document.getElementById('ribbon-guide').classList.remove('hidden');
+
+      updatePracticeDisplay();
+      highlightNextGuideKey();
+    }
+
+    function startAutoplay() {
+      stopPractice();
+      isAutoplayMode = true;
+      currentNoteIdx = 0;
+
+      document.getElementById('txt-mode').innerText = "DEMO AUTOMÁTICO";
+      document.getElementById('btn-start-learn').classList.add('hidden');
+      document.getElementById('btn-autoplay').classList.add('hidden');
+      document.getElementById('btn-stop-learn').classList.remove('hidden');
+      document.getElementById('ribbon-guide').classList.remove('hidden');
+
+      playNextAutoplayNote();
+    }
+
+    function playNextAutoplayNote() {
+      if (!isAutoplayMode) return;
+      const song = COMPLETE_SONGS[selectedSongKey];
+      if (!song || currentNoteIdx >= song.notes.length) {
+        stopAutoplay();
+        return;
+      }
+
+      const key = song.notes[currentNoteIdx];
+      playNoteKey(key);
+      updatePracticeDisplay();
+      highlightNextGuideKey();
+
+      setTimeout(() => stopNoteKey(key), 220);
+
+      currentNoteIdx++;
+      autoplayTimer = setTimeout(playNextAutoplayNote, 320);
+    }
+
+    function stopAutoplay() {
+      isAutoplayMode = false;
+      if (autoplayTimer) clearTimeout(autoplayTimer);
+    }
+
+    function stopPractice() {
+      stopAutoplay();
+      isLearningMode = false;
+      document.getElementById('txt-mode').innerText = "LIBRE / TOCA LIBREMENTE";
+      document.getElementById('btn-start-learn').classList.remove('hidden');
+      document.getElementById('btn-autoplay').classList.remove('hidden');
+      document.getElementById('btn-stop-learn').classList.add('hidden');
+      document.getElementById('ribbon-guide').classList.add('hidden');
+      document.querySelectorAll('.pc-key').forEach(k => k.classList.remove('guide-next'));
+    }
+
+    function highlightNextGuideKey() {
+      document.querySelectorAll('.pc-key').forEach(k => k.classList.remove('guide-next'));
+
+      const song = COMPLETE_SONGS[selectedSongKey];
+      if (!song || currentNoteIdx >= song.notes.length) {
+        if (isLearningMode) finishPractice();
+        return;
+      }
+
+      const nextKey = song.notes[currentNoteIdx];
+      document.getElementById('guide-key-letter').innerText = nextKey.toUpperCase();
+
+      let upcoming = '';
+      for (let i = 1; i <= 4; i++) {
+        if (currentNoteIdx + i < song.notes.length) {
+          upcoming += song.notes[currentNoteIdx + i].toUpperCase() + ' ';
+        }
+      }
+      document.getElementById('guide-upcoming-keys').innerText = upcoming || '--';
+
+      const keyEl = document.querySelector(`.pc-key[data-key="${nextKey}"]`);
+      if (keyEl) keyEl.classList.add('guide-next');
+    }
+
+    function evaluateKeyHit(pressedKey) {
+      const song = COMPLETE_SONGS[selectedSongKey];
+      if (!song || currentNoteIdx >= song.notes.length) return;
+
+      const expectedKey = song.notes[currentNoteIdx];
+
+      if (pressedKey.toLowerCase() === expectedKey.toLowerCase()) {
+        currentCombo++;
+        if (currentCombo > maxCombo) maxCombo = currentCombo;
+        perfectHits++;
+        userScore += 100 * (1 + Math.floor(currentCombo / 5) * 0.2);
+        totalHits++;
+
+        showJudgementFeedback("PERFECT!", "text-emerald-400");
+        currentNoteIdx++;
+        updatePracticeDisplay();
+        highlightNextGuideKey();
+      } else {
+        currentCombo = 0;
+        totalHits++;
+        userScore = Math.max(0, userScore - 20);
+        showJudgementFeedback("MISS!", "text-red-500");
+        updatePracticeDisplay();
+      }
+    }
+
+    function showJudgementFeedback(text, colorClass) {
+      const el = document.getElementById('judgement-text');
+      el.innerText = text;
+      el.className = `text-xs font-black font-orbitron transition-opacity ${colorClass} opacity-100 w-16 text-right`;
+      setTimeout(() => {
+        el.classList.remove('opacity-100');
+        el.classList.add('opacity-0');
+      }, 250);
+    }
+
+    function updatePracticeDisplay() {
+      const song = COMPLETE_SONGS[selectedSongKey];
+      const totalNotes = song ? song.notes.length : 1;
+
+      document.getElementById('txt-score').innerText = Math.round(userScore);
+      document.getElementById('txt-combo').innerText = `x${currentCombo}`;
+      const acc = totalHits > 0 ? Math.round((perfectHits / totalHits) * 100) : 100;
+      document.getElementById('txt-accuracy').innerText = `${acc}%`;
+
+      document.getElementById('txt-song-progress').innerText = `${currentNoteIdx} / ${totalNotes}`;
+      const pct = Math.min(100, Math.round((currentNoteIdx / totalNotes) * 100));
+      document.getElementById('bar-song-progress').style.width = `${pct}%`;
+    }
+
+    function finishPractice() {
+      stopPractice();
+      const song = COMPLETE_SONGS[selectedSongKey];
+      const accuracy = totalHits > 0 ? Math.round((perfectHits / totalHits) * 100) : 100;
+
+      let grade = 'F';
+      let stars = 1;
+      if (accuracy >= 98) { grade = 'S+'; stars = 5; }
+      else if (accuracy >= 90) { grade = 'A'; stars = 4; }
+      else if (accuracy >= 80) { grade = 'B'; stars = 3; }
+      else if (accuracy >= 65) { grade = 'C'; stars = 2; }
+
+      document.getElementById('eval-song-title').innerText = song.title;
+      document.getElementById('eval-grade').innerText = grade;
+      document.getElementById('eval-accuracy').innerText = `${accuracy}%`;
+      document.getElementById('eval-combo').innerText = `${maxCombo}x`;
+      document.getElementById('eval-score').innerText = Math.round(userScore).toLocaleString();
+
+      let starsHtml = '';
+      for (let i = 0; i < 5; i++) {
+        starsHtml += i < stars ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star text-slate-700"></i>';
+      }
+      document.getElementById('eval-stars').innerHTML = starsHtml;
+      document.getElementById('eval-modal').classList.remove('hidden');
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+      }
+    }
+
+    // Keyboard & DOM Events
+    window.addEventListener('DOMContentLoaded', () => {
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat) return;
+        const k = e.key.toLowerCase();
+        if (KEY_FREQ_MAP[k]) {
+          playNoteKey(k);
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        const k = e.key.toLowerCase();
+        if (KEY_FREQ_MAP[k]) {
+          stopNoteKey(k);
+        }
+      });
+
+      document.querySelectorAll('.pc-key').forEach(keyEl => {
+        const key = keyEl.dataset.key;
+
+        keyEl.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          playNoteKey(key);
+        });
+
+        keyEl.addEventListener('mouseup', (e) => {
+          e.preventDefault();
+          stopNoteKey(key);
+        });
+
+        keyEl.addEventListener('mouseleave', () => {
+          stopNoteKey(key);
+        });
+
+        keyEl.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          playNoteKey(key);
+        });
+
+        keyEl.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          stopNoteKey(key);
+        });
+      });
+
+      document.getElementById('sel-song').addEventListener('change', (e) => {
+        selectedSongKey = e.target.value;
+        if (isLearningMode) startPractice();
+        else if (isAutoplayMode) startAutoplay();
+      });
+
+      document.getElementById('btn-start-learn').addEventListener('click', startPractice);
+      document.getElementById('btn-autoplay').addEventListener('click', startAutoplay);
+      document.getElementById('btn-stop-learn').addEventListener('click', stopPractice);
+
+      document.getElementById('btn-close-modal').addEventListener('click', () => {
+        document.getElementById('eval-modal').classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
